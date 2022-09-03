@@ -20,8 +20,8 @@
         "ts-node-dev": "^1.1.8"
     },
     "dependencies": {
-        "typescript": "^4.6.3",
         "@typegoose/typegoose": "^9.7.1",
+        "@types/node": "^18.7.14",
         "argon2": "^0.28.5",
         "cookie-parser": "^1.4.6",
         "cors": "^2.8.5",
@@ -31,6 +31,7 @@
         "lodash": "^4.17.21",
         "mongoose": "^6.2.8",
         "nanoid": "^3.3.1",
+        "typescript": "^4.6.3",
         "zod": "^3.14.2"
     }
 }
