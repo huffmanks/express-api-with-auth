@@ -1,15 +1,22 @@
 import { Router } from 'express'
 
-import { createLoginHandler, refreshAccessTokenHandler, getQuestionHandler, restorePasswordHandler } from '../controller/auth.controller'
+import { createUserSchema } from '../schema/user.schema'
+import { registerHandler, loginHandler, forgotPasswordHandler, resetPasswordHandler, refreshAccessTokenHandler, logoutHandler } from '../controller/auth.controller'
+
+import validateResource from '../middleware/validateResource'
 
 const router = Router()
 
-router.post('/login', createLoginHandler)
+router.post('/register', validateResource(createUserSchema), registerHandler)
+
+router.post('/login', loginHandler)
+
+router.post('/forgot-password', forgotPasswordHandler)
+
+router.post('/reset-password/:resetPasswordToken', resetPasswordHandler)
 
 router.post('/refresh', refreshAccessTokenHandler)
 
-router.get('/restore', getQuestionHandler)
-
-router.post('/restore', restorePasswordHandler)
+router.post('/logout', logoutHandler)
 
 export default router

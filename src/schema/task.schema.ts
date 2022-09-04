@@ -4,4 +4,9 @@ export const createTaskSchema = object({
     body: object({}),
 })
 
+export const updateTaskSchema = object({
+    body: object({}),
+})
+
 export type CreateTaskInput = TypeOf<typeof createTaskSchema>['body']
+export type UpdateTaskInput = TypeOf<typeof updateTaskSchema>['body']

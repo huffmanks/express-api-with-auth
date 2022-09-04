@@ -1,20 +1,22 @@
 import { Router } from 'express'
 
-import { createUserSchema } from '../schema/user.schema'
+import { createUserSchema, updateUserSchema } from '../schema/user.schema'
 import { getUsersHandler, getUserHandler, createUserHandler, updateUserHandler, deleteUserHandler } from '../controller/user.controller'
 
+import checkToken from '../middleware/checkToken'
+import restrictRole from '../middleware/restrictRole'
 import validateResource from '../middleware/validateResource'
 
 const router = Router()
 
-router.get('/', getUsersHandler)
+router.get('/', checkToken, restrictRole('bull', 'mako'), getUsersHandler)
 
-router.get('/:id', getUserHandler)
+router.get('/:id', checkToken, restrictRole('bull', 'mako'), getUserHandler)
 
-router.post('/create', validateResource(createUserSchema), createUserHandler)
+router.post('/create', checkToken, restrictRole('bull'), validateResource(createUserSchema), createUserHandler)
 
-router.put('/update/:id', updateUserHandler)
+router.put('/update/:id', checkToken, restrictRole('bull'), validateResource(updateUserSchema), updateUserHandler)
 
-router.delete('/:id', deleteUserHandler)
+router.delete('/:id', checkToken, restrictRole('bull'), deleteUserHandler)
 
 export default router

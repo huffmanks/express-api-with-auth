@@ -1,35 +1,19 @@
-import { getModelForClass, prop } from '@typegoose/typegoose'
+import { getModelForClass, prop, Ref } from '@typegoose/typegoose'
+import { User } from './user.model'
 
 export class Task {
-    @prop({})
-    userId: String
+    @prop({
+        ref: () => User,
+    })
+    users: Ref<User>[]
+
+    @prop({
+        required: true,
+    })
+    title: String
 
     @prop({})
-    name: String
-
-    @prop({})
-    date: String
-
-    @prop({})
-    type: String
-
-    @prop({})
-    plannedStart: Date
-
-    @prop({})
-    plannedEnd: Date
-
-    @prop({})
-    completed: Boolean
-
-    @prop({})
-    started: Boolean
-
-    @prop({})
-    startedTime: Date
-
-    @prop({})
-    endedTime: Date
+    description: String
 }
 
 const TaskModel = getModelForClass(Task)

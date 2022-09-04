@@ -1,7 +1,7 @@
 import { Request, Response } from 'express'
 import { omit } from 'lodash'
 
-import { CreateUserInput } from '../schema/user.schema'
+import { CreateUserInput, UpdateUserInput } from '../schema/user.schema'
 import { privateFields } from '../model/user.model'
 
 import { getUsers, getUserById, createUser, updateUser, deleteUser } from '../service/user.service'
@@ -38,7 +38,7 @@ export async function createUserHandler(req: Request<{}, {}, CreateUserInput>, r
     }
 }
 
-export async function updateUserHandler(req: Request, res: Response) {
+export async function updateUserHandler(req: Request<{}, {}, UpdateUserInput>, res: Response) {
     try {
         const token = req.headers.authorization?.split(' ')[1]
         const profileData = req.body

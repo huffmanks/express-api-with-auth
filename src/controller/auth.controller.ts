@@ -1,15 +1,34 @@
 import { Request, Response } from 'express'
 import argon2 from 'argon2'
+import crypto from 'crypto'
 import { omit } from 'lodash'
 
 import { privateFields } from '../model/user.model'
+import { CreateUserInput, LoginUserInput } from '../schema/user.schema'
 
-import { signAccessToken, signRefreshToken, getSessionById, getQuestion, restorePassword } from '../service/auth.service'
-import { getUserByEmail, getUserById } from '../service/user.service'
+import { signAccessToken, signRefreshToken, getSessionById, forgotPassword, resetPassword } from '../service/auth.service'
+import { createUser, getUserByEmail, getUserById, getUserByResetPasswordToken } from '../service/user.service'
 
 import { verifyJwt } from '../utils/jwt'
 
-export async function createLoginHandler(req: Request, res: Response) {
+export async function registerHandler(req: Request<{}, {}, CreateUserInput>, res: Response) {
+    try {
+        const body = req.body
+
+        const user = await createUser(body)
+        const userData = omit(user.toJSON(), privateFields)
+
+        return res.send(userData)
+    } catch (e: any) {
+        if ((e.code = 11000)) {
+            return res.status(409).send('User already exists')
+        }
+
+        return res.status(500).send(e)
+    }
+}
+
+export async function loginHandler(req: Request<{}, {}, LoginUserInput>, res: Response) {
     const message = 'Invalid email or password'
     const { email, password } = req.body
 
@@ -18,6 +37,55 @@ export async function createLoginHandler(req: Request, res: Response) {
 
     const isValid = await user.validatePassword(password)
     if (!isValid) return res.status(401).send(message)
+
+    const accessToken = signAccessToken(user)
+    const refreshToken = await signRefreshToken({ userId: user._id })
+
+    const userData = omit(user.toJSON(), privateFields)
+
+    return res.send({
+        ...userData,
+        accessToken,
+        refreshToken,
+    })
+}
+
+export async function forgotPasswordHandler(req: Request, res: Response) {
+    const { email } = req.body
+
+    if (!email) return res.status(400).send('Please provide an email.')
+
+    const user = await getUserByEmail(email)
+    if (!user) return res.status(404).send('Could not find user')
+
+    const resetPasswordToken = forgotPassword(user)
+
+    if (!resetPasswordToken) return res.status(500).send('Email could not be sent.')
+
+    res.status(200).send(resetPasswordToken)
+}
+
+export async function resetPasswordHandler(req: Request, res: Response) {
+    const resetPasswordToken = crypto.createHash('sha256').update(req.params.resetPasswordToken).digest('hex')
+
+    const { password } = req.body
+
+    const user = await getUserByResetPasswordToken(resetPasswordToken)
+    if (!user) return res.status(500).send('Something happend while reseting password')
+
+    const date = new Date()
+    const currentTime = new Date(date.getTime())
+
+    if (user.resetPasswordExpire < currentTime) {
+        user.resetPasswordToken = ''
+
+        await user.save()
+
+        return res.status(401).send('Reset password token has expired!')
+    }
+
+    const hash = await argon2.hash(password)
+    resetPassword(hash, String(user?._id))
 
     const accessToken = signAccessToken(user)
     const refreshToken = await signRefreshToken({ userId: user._id })
@@ -48,25 +116,27 @@ export async function refreshAccessTokenHandler(req: Request, res: Response) {
     res.send({ accessToken })
 }
 
-export async function getQuestionHandler(req: Request, res: Response) {
-    const user = await getQuestion(req.query)
+export async function logoutHandler(req: Request, res: Response) {
+    const token = req.headers['x-refresh'] as string
 
-    if (!user) return res.status(404).send('Could not find user')
+    const decoded = verifyJwt<{ session: string }>(token || '', 'refreshTokenPublicKey')
+    if (!decoded) return res.sendStatus(204)
 
-    res.send(user[0].question)
-}
+    const session = await getSessionById(decoded.session)
+    if (!session || !session.valid) {
+        res.clearCookie('accessToken', { httpOnly: true, maxAge: 0 })
+        return res.sendStatus(204)
+    }
 
-export async function restorePasswordHandler(req: Request, res: Response) {
-    const { email, answer, password } = req.body
+    const user = await getUserById(String(session.user))
+    if (!user) {
+        res.clearCookie('accessToken', { httpOnly: true, maxAge: 0 })
+        return res.sendStatus(204)
+    }
 
-    const user = await getUserByEmail(email)
-    if (!user) return res.status(500).send('Something happend while restoring password')
+    session.valid = false
+    await session.save()
 
-    if (answer.toLowerCase() !== user?.answer.toLowerCase()) return res.status(403).send('Wrong password')
-
-    const hash = await argon2.hash(password)
-
-    await restorePassword(hash, String(user?._id))
-
-    res.send('Password has been updated')
+    res.clearCookie('accessToken', { httpOnly: true, maxAge: 0 })
+    res.sendStatus(204)
 }

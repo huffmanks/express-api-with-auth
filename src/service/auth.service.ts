@@ -36,10 +36,17 @@ export function getSessionById(id: string) {
     return SessionModel.findById(id)
 }
 
-export function getQuestion(email: any) {
-    return UserModel.find(email)
+export async function forgotPassword(user: DocumentType<User>) {
+    const resetPasswordToken = user.getResetPasswordToken()
+
+    if (!resetPasswordToken) {
+        user.resetPasswordToken = ''
+    }
+    await user.save()
+
+    return resetPasswordToken
 }
 
-export function restorePassword(password: string, id: string) {
-    return UserModel.findByIdAndUpdate(id, { password })
+export function resetPassword(password: string, id: string) {
+    return UserModel.findByIdAndUpdate(id, { password, resetPasswordToken: '' })
 }

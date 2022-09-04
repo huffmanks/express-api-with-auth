@@ -1,7 +1,5 @@
-import { DocumentType } from '@typegoose/typegoose'
-
-import UserModel, { User } from '../model/user.model'
-import { CreateUserInput } from '../schema/user.schema'
+import UserModel from '../model/user.model'
+import { CreateUserInput, UpdateUserInput } from '../schema/user.schema'
 
 export function getUsers() {
     return UserModel.find({})
@@ -15,12 +13,16 @@ export function getUserByEmail(email: string) {
     return UserModel.findOne({ email })
 }
 
+export function getUserByResetPasswordToken(resetPasswordToken: string) {
+    return UserModel.findOne({ resetPasswordToken })
+}
+
 export function createUser(input: CreateUserInput) {
     return UserModel.create(input)
 }
 
-export function updateUser(data: DocumentType<User>) {
-    return UserModel.findByIdAndUpdate(data._id, data)
+export function updateUser(input: UpdateUserInput) {
+    return UserModel.findByIdAndUpdate(input._id, input)
 }
 
 export function deleteUser(id: string) {
