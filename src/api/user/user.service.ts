@@ -1,5 +1,5 @@
-import UserModel from '../model/user.model'
-import { CreateUserInput, UpdateUserInput } from '../schema/user.schema'
+import UserModel from './user.model'
+import { CreateUserInput, UpdateUserInput } from './user.schema'
 
 export function getUsers() {
     return UserModel.find({})

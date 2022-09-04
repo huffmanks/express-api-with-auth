@@ -1,11 +1,11 @@
 import { Router } from 'express'
 
-import { createTaskSchema, updateTaskSchema } from '../schema/task.schema'
-import { getTasksHandler, getTaskHandler, createTaskHandler, updateTaskHandler, deleteTaskHandler } from '../controller/task.controller'
+import { createTaskSchema, updateTaskSchema } from './task.schema'
+import { getTasksHandler, getTaskHandler, createTaskHandler, updateTaskHandler, deleteTaskHandler } from './task.controller'
 
-import checkToken from '../middleware/checkToken'
-import restrictRole from '../middleware/restrictRole'
-import validateResource from '../middleware/validateResource'
+import checkToken from '../../middleware/checkToken'
+import restrictRole from '../../middleware/restrictRole'
+import validateResource from '../../middleware/validateResource'
 
 const router = Router()
 

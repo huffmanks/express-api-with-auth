@@ -1,9 +1,9 @@
 import { Router } from 'express'
 
-import { createUserSchema } from '../schema/user.schema'
-import { registerHandler, loginHandler, forgotPasswordHandler, resetPasswordHandler, refreshAccessTokenHandler, logoutHandler } from '../controller/auth.controller'
+import { createUserSchema } from '../user/user.schema'
+import { registerHandler, loginHandler, forgotPasswordHandler, resetPasswordHandler, refreshAccessTokenHandler, logoutHandler } from './auth.controller'
 
-import validateResource from '../middleware/validateResource'
+import validateResource from '../../middleware/validateResource'
 
 const router = Router()
 

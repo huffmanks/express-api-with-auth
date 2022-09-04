@@ -1,7 +1,7 @@
 import { DocumentType } from '@typegoose/typegoose'
 
-import TaskModel, { Task } from '../model/task.model'
-import { CreateTaskInput } from '../schema/task.schema'
+import TaskModel, { Task } from './task.model'
+import { CreateTaskInput } from './task.schema'
 
 export function getTasks() {
     return TaskModel.find({})

@@ -1,7 +1,7 @@
 import { nativeEnum, object, optional, string, TypeOf } from 'zod'
 import { mongoose } from '@typegoose/typegoose'
 
-import { ERole } from '../model/user.model'
+import { ERole } from './user.model'
 
 export const createUserSchema = object({
     body: object({

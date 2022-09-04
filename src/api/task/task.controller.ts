@@ -1,8 +1,8 @@
 import { Request, Response } from 'express'
 
-import { CreateTaskInput } from '../schema/task.schema'
+import { CreateTaskInput } from './task.schema'
 
-import { getTasks, getTaskById, createTask, updateTask, deleteTask } from '../service/task.service'
+import { getTasks, getTaskById, createTask, updateTask, deleteTask } from './task.service'
 
 export async function getTasksHandler(req: Request, res: Response) {
     const tasks = await getTasks()

@@ -1,11 +1,11 @@
 import { Router } from 'express'
 
-import { createUserSchema, updateUserSchema } from '../schema/user.schema'
-import { getUsersHandler, getUserHandler, createUserHandler, updateUserHandler, deleteUserHandler } from '../controller/user.controller'
+import { createUserSchema, updateUserSchema } from './user.schema'
+import { getUsersHandler, getUserHandler, createUserHandler, updateUserHandler, deleteUserHandler } from './user.controller'
 
-import checkToken from '../middleware/checkToken'
-import restrictRole from '../middleware/restrictRole'
-import validateResource from '../middleware/validateResource'
+import checkToken from '../../middleware/checkToken'
+import restrictRole from '../../middleware/restrictRole'
+import validateResource from '../../middleware/validateResource'
 
 const router = Router()
 

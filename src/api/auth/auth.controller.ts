@@ -3,13 +3,13 @@ import argon2 from 'argon2'
 import crypto from 'crypto'
 import { omit } from 'lodash'
 
-import { privateFields } from '../model/user.model'
-import { CreateUserInput, LoginUserInput } from '../schema/user.schema'
+import { privateFields } from '../user/user.model'
+import { CreateUserInput, LoginUserInput } from '../user/user.schema'
 
-import { signAccessToken, signRefreshToken, getSessionById, forgotPassword, resetPassword } from '../service/auth.service'
-import { createUser, getUserByEmail, getUserById, getUserByResetPasswordToken } from '../service/user.service'
+import { signAccessToken, signRefreshToken, getSessionById, forgotPassword, resetPassword } from './auth.service'
+import { createUser, getUserByEmail, getUserById, getUserByResetPasswordToken } from '../user/user.service'
 
-import { verifyJwt } from '../utils/jwt'
+import { verifyJwt } from '../../utils/jwt'
 
 export async function registerHandler(req: Request<{}, {}, CreateUserInput>, res: Response) {
     try {

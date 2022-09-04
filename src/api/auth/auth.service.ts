@@ -1,10 +1,10 @@
 import { DocumentType } from '@typegoose/typegoose'
 import { omit } from 'lodash'
 
-import SessionModel from '../model/session.model'
-import UserModel, { privateFields, User } from '../model/user.model'
+import SessionModel from './auth.model'
+import UserModel, { privateFields, User } from '../user/user.model'
 
-import { signJwt } from '../utils/jwt'
+import { signJwt } from '../../utils/jwt'
 
 export function signAccessToken(user: DocumentType<User>) {
     const payload = omit(user.toJSON(), privateFields)

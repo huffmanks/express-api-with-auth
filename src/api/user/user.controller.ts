@@ -1,12 +1,12 @@
 import { Request, Response } from 'express'
 import { omit } from 'lodash'
 
-import { CreateUserInput, UpdateUserInput } from '../schema/user.schema'
-import { privateFields } from '../model/user.model'
+import { CreateUserInput, UpdateUserInput } from './user.schema'
+import { privateFields } from './user.model'
 
-import { getUsers, getUserById, createUser, updateUser, deleteUser } from '../service/user.service'
+import { getUsers, getUserById, createUser, updateUser, deleteUser } from './user.service'
 
-import { verifyJwt } from '../utils/jwt'
+import { verifyJwt } from '../../utils/jwt'
 
 export async function getUsersHandler(req: Request, res: Response) {
     const users = await getUsers()

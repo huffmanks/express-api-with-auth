@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from 'express'
 import { DocumentType } from '@typegoose/typegoose'
 
-import { User } from '../model/user.model'
-import { getUserById } from '../service/user.service'
+import { User } from '../api/user/user.model'
+import { getUserById } from '../api/user/user.service'
 import { verifyJwt } from '../utils/jwt'
 
 const checkToken = async (req: Request, res: Response, next: NextFunction) => {
