@@ -16,7 +16,7 @@ export function createTask(input: CreateTaskInput) {
 }
 
 export function updateTask(task: DocumentType<Task>) {
-    return TaskModel.findByIdAndUpdate(task._id, task)
+    return TaskModel.findByIdAndUpdate(task._id, task, { new: true })
 }
 
 export function deleteTask(id: string) {

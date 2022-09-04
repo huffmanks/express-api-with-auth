@@ -1,3 +1,4 @@
+import SessionModel from '../auth/auth.model'
 import UserModel from './user.model'
 import { CreateUserInput, UpdateUserInput } from './user.schema'
 
@@ -21,10 +22,13 @@ export function createUser(input: CreateUserInput) {
     return UserModel.create(input)
 }
 
-export function updateUser(input: UpdateUserInput) {
-    return UserModel.findByIdAndUpdate(input._id, input)
+export function updateUser(id: string, input: UpdateUserInput) {
+    return UserModel.findByIdAndUpdate({ _id: id }, input, { new: true })
 }
 
-export function deleteUser(id: string) {
-    return UserModel.findByIdAndDelete(id)
+export async function deleteUser(id: string) {
+    const user = UserModel.findByIdAndDelete(id)
+    await SessionModel.deleteMany({ user: id })
+
+    return user
 }

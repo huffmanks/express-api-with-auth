@@ -88,7 +88,7 @@ export class User {
         const resetPasswordToken = crypto.randomBytes(20).toString('hex')
 
         const date = new Date()
-        const expirationTime = new Date(date.getTime() + 5 * 60000)
+        const expirationTime = new Date(date.getTime() + 10 * 60000)
 
         this.resetPasswordToken = crypto.createHash('sha256').update(resetPasswordToken).digest('hex')
         this.resetPasswordExpire = expirationTime

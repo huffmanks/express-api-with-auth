@@ -15,7 +15,7 @@ router.get('/:id', checkToken, restrictRole('bull', 'mako'), getUserHandler)
 
 router.post('/create', checkToken, restrictRole('bull'), validateResource(createUserSchema), createUserHandler)
 
-router.put('/update/:id', checkToken, restrictRole('bull'), validateResource(updateUserSchema), updateUserHandler)
+router.patch('/update/:id', checkToken, restrictRole('bull'), validateResource(updateUserSchema), updateUserHandler)
 
 router.delete('/:id', checkToken, restrictRole('bull'), deleteUserHandler)
 

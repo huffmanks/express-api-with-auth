@@ -1,5 +1,4 @@
-import { nativeEnum, object, optional, string, TypeOf } from 'zod'
-import { mongoose } from '@typegoose/typegoose'
+import { literal, nativeEnum, object, optional, string, TypeOf } from 'zod'
 
 import { ERole } from './user.model'
 
@@ -34,10 +33,23 @@ export const loginUserSchema = object({
     }),
 })
 
+export const resetPasswordSchema = object({
+    body: object({
+        password: string({
+            required_error: 'Password is required.',
+        }).min(8, 'Password must be a minimum of 8 characters.'),
+
+        passwordConfirmation: string({
+            required_error: 'Password confirmation is required.',
+        }),
+    }).refine((data) => data.password === data.passwordConfirmation, {
+        message: 'Passwords do not match.',
+        path: ['passwordConfirmation'],
+    }),
+})
+
 export const updateUserSchema = object({
     body: object({
-        _id: optional(string().transform(() => mongoose.Types.ObjectId)),
-
         firstName: optional(string()),
 
         lastName: optional(string()),
@@ -62,8 +74,8 @@ export const updateUserSchema = object({
 
         role: optional(nativeEnum(ERole)),
 
-        avatarUrl: optional(string().url()),
-    }).refine((data) => data.password === data.passwordConfirmation, {
+        avatarUrl: string().url().optional().or(literal('')),
+    }).refine((data) => data?.password === data?.passwordConfirmation, {
         message: 'Passwords do not match.',
         path: ['passwordConfirmation'],
     }),

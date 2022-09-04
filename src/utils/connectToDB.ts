@@ -1,10 +1,10 @@
 import mongoose from 'mongoose'
 
-export default async function () {
-    const dbUri = process.env.DB_URI as string
+import config from '../config'
 
+export default async function () {
     try {
-        await mongoose.connect(dbUri)
+        await mongoose.connect(config.dbUri)
         console.log('Connected to MongoDB')
     } catch (e) {
         process.exit(1)

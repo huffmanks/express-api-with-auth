@@ -6,8 +6,6 @@ import { privateFields } from './user.model'
 
 import { getUsers, getUserById, createUser, updateUser, deleteUser } from './user.service'
 
-import { verifyJwt } from '../../utils/jwt'
-
 export async function getUsersHandler(req: Request, res: Response) {
     const users = await getUsers()
 
@@ -15,7 +13,7 @@ export async function getUsersHandler(req: Request, res: Response) {
 }
 
 export async function getUserHandler(req: Request, res: Response) {
-    const id = req.query.id as string
+    const id = req.params.id
     const user = await getUserById(id)
 
     res.send(user)
@@ -38,15 +36,12 @@ export async function createUserHandler(req: Request<{}, {}, CreateUserInput>, r
     }
 }
 
-export async function updateUserHandler(req: Request<{}, {}, UpdateUserInput>, res: Response) {
+export async function updateUserHandler(req: Request<{ id: string }, {}, UpdateUserInput>, res: Response) {
     try {
-        const token = req.headers.authorization?.split(' ')[1]
+        const id = req.params.id
         const profileData = req.body
 
-        const decoded = verifyJwt(token || '', 'accessTokenPublicKey')
-        if (!decoded) return res.status(403).send('Access token is not valid')
-
-        const updated = await updateUser(profileData)
+        const updated = await updateUser(id, profileData)
         if (!updated) return res.status(500).send('Could not update profile')
 
         const userData = omit(updated.toJSON(), privateFields)
@@ -57,7 +52,11 @@ export async function updateUserHandler(req: Request<{}, {}, UpdateUserInput>, r
 
 export async function deleteUserHandler(req: Request, res: Response) {
     const id = req.params.id as string
-    const response = await deleteUser(id)
 
-    res.send(response)
+    const user = await deleteUser(id)
+    if (!user) return res.status(500).send('Could not delete user.')
+
+    const deletedUser = omit(user.toJSON(), privateFields)
+
+    res.status(200).send(deletedUser)
 }
