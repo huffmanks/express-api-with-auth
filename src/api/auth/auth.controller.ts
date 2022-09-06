@@ -9,6 +9,7 @@ import { signAccessToken, signRefreshToken, getSessionById, forgotPassword, rese
 import { createUser, getUserByEmail, getUserById, getUserByResetPasswordToken } from '../user/user.service'
 
 import { verifyJwt } from '../../utils/jwt'
+import { getCurrentTime } from '../../utils/getCurrentTime'
 
 export async function registerHandler(req: Request<{}, {}, CreateUserInput>, res: Response) {
     try {
@@ -17,7 +18,7 @@ export async function registerHandler(req: Request<{}, {}, CreateUserInput>, res
         const user = await createUser(body)
         const userData = omit(user.toJSON(), privateFields)
 
-        return res.send(userData)
+        return res.status(201).send(userData)
     } catch (e: any) {
         if ((e.code = 11000)) {
             return res.status(409).send('User already exists')
@@ -40,13 +41,7 @@ export async function loginHandler(req: Request<{}, {}, LoginUserInput>, res: Re
     const accessToken = signAccessToken(user)
     const refreshToken = await signRefreshToken({ userId: user._id })
 
-    const userData = omit(user.toJSON(), privateFields)
-
-    return res.send({
-        ...userData,
-        accessToken,
-        refreshToken,
-    })
+    return res.send({ accessToken, refreshToken })
 }
 
 export async function forgotPasswordHandler(req: Request, res: Response) {
@@ -72,10 +67,14 @@ export async function resetPasswordHandler(req: Request, res: Response) {
 
     const updatedUser = await resetPassword(user, req.body.password)
 
-    const date = new Date()
-    const currentTime = new Date(date.getTime())
+    const currentTime = getCurrentTime()
 
-    if (updatedUser.resetPasswordExpire < currentTime) return res.status(401).send('Reset password token has expired!')
+    const isExpired = new Date(updatedUser.resetPasswordExpire) < new Date(currentTime)
+
+    updatedUser.resetPasswordExpire = ''
+    updatedUser.save()
+
+    if (isExpired) return res.status(401).send('Reset password token has expired!')
 
     const accessToken = signAccessToken(updatedUser)
     const refreshToken = await signRefreshToken({ userId: updatedUser._id })
@@ -97,7 +96,7 @@ export async function refreshAccessTokenHandler(req: Request, res: Response) {
 
     const accessToken = signAccessToken(user)
 
-    res.send({ accessToken })
+    res.status(200).send({ accessToken })
 }
 
 export async function logoutHandler(req: Request, res: Response) {
@@ -106,5 +105,5 @@ export async function logoutHandler(req: Request, res: Response) {
     const session = await terminateSession({ userId: user._id })
     if (!session) return res.status(500).send('Logout failed.')
 
-    return res.status(200).send('Logged out successfully.')
+    return res.status(204)
 }

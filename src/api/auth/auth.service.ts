@@ -47,6 +47,7 @@ export async function forgotPassword(user: DocumentType<User>) {
 
     if (!resetPasswordToken) {
         user.resetPasswordToken = ''
+        user.resetPasswordExpire = ''
     }
     await user.save()
 

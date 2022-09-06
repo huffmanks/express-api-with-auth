@@ -2,6 +2,8 @@ import { DocumentType, getModelForClass, modelOptions, prop, pre, queryMethod } 
 import argon2 from 'argon2'
 import crypto from 'crypto'
 
+import { getCurrentTime } from '../../utils/getCurrentTime'
+
 export const privateFields = ['password', '__v']
 
 export enum ERole {
@@ -72,9 +74,9 @@ export class User {
     resetPasswordToken: string
 
     @prop({
-        default: new Date(),
+        default: '',
     })
-    resetPasswordExpire: Date
+    resetPasswordExpire: string
 
     async validatePassword(this: DocumentType<User>, candidate: string) {
         try {
@@ -87,8 +89,7 @@ export class User {
     getResetPasswordToken(this: DocumentType<User>) {
         const resetPasswordToken = crypto.randomBytes(20).toString('hex')
 
-        const date = new Date()
-        const expirationTime = new Date(date.getTime() + 10 * 60000)
+        const expirationTime = getCurrentTime(10)
 
         this.resetPasswordToken = crypto.createHash('sha256').update(resetPasswordToken).digest('hex')
         this.resetPasswordExpire = expirationTime
