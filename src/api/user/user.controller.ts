@@ -26,7 +26,7 @@ export async function createUserHandler(req: Request<{}, {}, CreateUserInput>, r
         const user = await createUser(body)
         const userData = omit(user.toJSON(), privateFields)
 
-        return res.send(userData)
+        return res.status(201).send(userData)
     } catch (e: any) {
         if ((e.code = 11000)) {
             return res.status(409).send('User already exists')
@@ -39,14 +39,13 @@ export async function createUserHandler(req: Request<{}, {}, CreateUserInput>, r
 export async function updateUserHandler(req: Request<{ id: string }, {}, UpdateUserInput>, res: Response) {
     try {
         const id = req.params.id
-        const profileData = req.body
 
-        const updated = await updateUser(id, profileData)
-        if (!updated) return res.status(500).send('Could not update profile')
+        const updatedUser = await updateUser(id, req.body)
+        if (!updatedUser) return res.status(500).send('Could not update user.')
 
-        const userData = omit(updated.toJSON(), privateFields)
+        const userData = omit(updatedUser.toJSON(), privateFields)
 
-        return res.send(userData)
+        return res.status(200).send(userData)
     } catch (e: any) {}
 }
 

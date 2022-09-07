@@ -3,7 +3,7 @@ import { omit } from 'lodash'
 
 import config from '../../config'
 
-import SessionModel from './auth.model'
+import { SessionModel } from '../../models'
 import { privateFields, User } from '../user/user.model'
 
 import { signJwt } from '../../utils/jwt'

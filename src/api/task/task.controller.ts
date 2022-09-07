@@ -1,37 +1,44 @@
 import { Request, Response } from 'express'
 
-import { CreateTaskInput } from './task.schema'
+import { CreateTaskInput, UpdateTaskInput } from './task.schema'
 
 import { getTasks, getTaskById, createTask, updateTask, deleteTask } from './task.service'
 
 export async function getTasksHandler(req: Request, res: Response) {
     const tasks = await getTasks()
 
-    res.send(tasks)
+    res.status(200).send(tasks)
 }
 
 export async function getTaskHandler(req: Request, res: Response) {
-    const id = req.query.id as string
+    const id = req.params.id as string
     const task = await getTaskById(id)
 
-    res.send(task)
+    res.status(200).send(task)
 }
 
 export async function createTaskHandler(req: Request<{}, {}, CreateTaskInput>, res: Response) {
-    const response = await createTask(req.body)
+    const task = await createTask(req.body)
 
-    res.send(response)
+    res.status(201).send(task)
 }
 
-export async function updateTaskHandler(req: Request, res: Response) {
-    const response = await updateTask(req.body)
+export async function updateTaskHandler(req: Request<{ id: string }, {}, UpdateTaskInput>, res: Response) {
+    try {
+        const id = req.params.id
 
-    res.send(response)
+        const updatedTask = await updateTask(id, req.body)
+        if (!updatedTask) return res.status(500).send('Could not update task.')
+
+        return res.status(200).send(updatedTask)
+    } catch (e: any) {}
 }
 
 export async function deleteTaskHandler(req: Request, res: Response) {
     const id = req.params.id as string
-    const response = await deleteTask(id)
 
-    res.send(response)
+    const task = await deleteTask(id)
+    if (!task) return res.status(500).send('Could not delete task.')
+
+    res.status(200).send(task)
 }

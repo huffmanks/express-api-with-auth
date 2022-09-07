@@ -54,17 +54,9 @@ export const updateUserSchema = object({
 
         lastName: optional(string()),
 
-        email: optional(
-            string({
-                required_error: 'Email is required.',
-            }).email('Email is not valid.')
-        ),
+        email: optional(string().email('Email is not valid.').min(1, 'Email is required.')),
 
-        password: optional(
-            string({
-                required_error: 'Password is required.',
-            }).min(8, 'Password must be a minimum of 8 characters.')
-        ),
+        password: optional(string().min(8, 'Password must be a minimum of 8 characters.')),
 
         passwordConfirmation: optional(
             string({

@@ -1,4 +1,4 @@
-import { DocumentType, getModelForClass, modelOptions, prop, pre, queryMethod } from '@typegoose/typegoose'
+import { DocumentType, modelOptions, prop, pre } from '@typegoose/typegoose'
 import argon2 from 'argon2'
 import crypto from 'crypto'
 
@@ -97,7 +97,3 @@ export class User {
         return resetPasswordToken
     }
 }
-
-const UserModel = getModelForClass(User)
-
-export default UserModel

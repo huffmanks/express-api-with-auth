@@ -1,13 +1,14 @@
 import { modelOptions, prop, Ref } from '@typegoose/typegoose'
+// import { Team } from '../team/team.model'
+import { Task } from '../task/task.model'
 import { User } from '../user/user.model'
-import { Project } from '../project/project.model'
 
 @modelOptions({
     schemaOptions: {
         timestamps: true,
     },
 })
-export class Task {
+export class Project {
     @prop({
         required: true,
     })
@@ -18,11 +19,16 @@ export class Task {
     })
     description: String
 
+    // @prop({
+    //     ref: () => Team,
+    //     required: true,
+    // })
+    // team: Ref<Team>
+
     @prop({
-        ref: () => Project,
-        required: true,
+        ref: () => Task,
     })
-    project: Ref<Project>
+    tasks: Ref<Task>[]
 
     @prop({
         ref: () => User,

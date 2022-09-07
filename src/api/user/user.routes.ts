@@ -9,13 +9,13 @@ import validateResource from '../../middleware/validateResource'
 
 const router = Router()
 
-router.get('/', checkToken, restrictRole('bull', 'mako'), getUsersHandler)
+router.get('/', checkToken, getUsersHandler)
 
-router.get('/:id', checkToken, restrictRole('bull', 'mako'), getUserHandler)
+router.get('/:id', checkToken, getUserHandler)
 
-router.post('/create', checkToken, restrictRole('bull'), validateResource(createUserSchema), createUserHandler)
+router.post('/create', checkToken, restrictRole('bull', 'mako'), validateResource(createUserSchema), createUserHandler)
 
-router.patch('/update/:id', checkToken, restrictRole('bull'), validateResource(updateUserSchema), updateUserHandler)
+router.patch('/update/:id', checkToken, restrictRole('bull', 'mako'), validateResource(updateUserSchema), updateUserHandler)
 
 router.delete('/:id', checkToken, restrictRole('bull'), deleteUserHandler)
 

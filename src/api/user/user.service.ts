@@ -1,5 +1,5 @@
-import SessionModel from '../auth/auth.model'
-import UserModel from './user.model'
+import { UserModel, SessionModel } from '../../models'
+
 import { CreateUserInput, UpdateUserInput } from './user.schema'
 
 export function getUsers() {

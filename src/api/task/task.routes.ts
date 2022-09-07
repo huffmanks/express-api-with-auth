@@ -15,8 +15,8 @@ router.get('/:id', checkToken, getTaskHandler)
 
 router.post('/create', checkToken, validateResource(createTaskSchema), createTaskHandler)
 
-router.put('/update/:id', checkToken, restrictRole('bull'), validateResource(updateTaskSchema), updateTaskHandler)
+router.patch('/update/:id', checkToken, validateResource(updateTaskSchema), updateTaskHandler)
 
-router.delete('/:id', checkToken, restrictRole('bull'), deleteTaskHandler)
+router.delete('/:id', checkToken, restrictRole('bull', 'mako'), deleteTaskHandler)
 
 export default router

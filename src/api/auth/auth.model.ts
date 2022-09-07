@@ -1,6 +1,11 @@
-import { getModelForClass, prop, Ref } from '@typegoose/typegoose'
+import { modelOptions, prop, Ref } from '@typegoose/typegoose'
 import { User } from '../user/user.model'
 
+@modelOptions({
+    schemaOptions: {
+        timestamps: true,
+    },
+})
 export class Session {
     @prop({
         ref: () => User,
@@ -12,11 +17,3 @@ export class Session {
     })
     valid: boolean
 }
-
-const SessionModel = getModelForClass(Session, {
-    schemaOptions: {
-        timestamps: true,
-    },
-})
-
-export default SessionModel
