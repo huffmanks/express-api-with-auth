@@ -3,20 +3,19 @@ import { Router } from 'express'
 import { createTaskSchema, updateTaskSchema } from './task.schema'
 import { getTasksHandler, getTaskHandler, createTaskHandler, updateTaskHandler, deleteTaskHandler } from './task.controller'
 
-import checkToken from '../../middleware/checkToken'
-import restrictRole from '../../middleware/restrictRole'
+import restrictRoute from '../../middleware/restrictRoute'
 import validateResource from '../../middleware/validateResource'
 
 const router = Router()
 
-router.get('/', checkToken, getTasksHandler)
+router.get('/', getTasksHandler)
 
-router.get('/:id', checkToken, getTaskHandler)
+router.get('/:id', getTaskHandler)
 
-router.post('/create', checkToken, validateResource(createTaskSchema), createTaskHandler)
+router.post('/create', validateResource(createTaskSchema), createTaskHandler)
 
-router.patch('/update/:id', checkToken, validateResource(updateTaskSchema), updateTaskHandler)
+router.patch('/update/:id', validateResource(updateTaskSchema), updateTaskHandler)
 
-router.delete('/:id', checkToken, restrictRole('bull', 'mako'), deleteTaskHandler)
+router.delete('/:id', restrictRoute('bull', 'mako'), deleteTaskHandler)
 
 export default router

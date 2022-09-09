@@ -13,9 +13,10 @@ const app = express()
 app.use(json())
 app.use(cookieParser())
 app.use(cors())
+
 app.use('/api', router)
 
 app.listen(config.port || 5000, async () => {
     await connectToDB()
-    console.log('Server is running on http://localhost:' + config.port)
+    console.log('Server is running on http://localhost:' + config.port || 5000)
 })

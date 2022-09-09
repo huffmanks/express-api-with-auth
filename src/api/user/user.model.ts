@@ -4,7 +4,7 @@ import crypto from 'crypto'
 
 import { getCurrentTime } from '../../utils/getCurrentTime'
 
-export const privateFields = ['password', '__v']
+export const privateFields = ['password', 'resetPasswordToken', 'resetPasswordExpire', '__v']
 
 export enum ERole {
     ADMIN = 'bull',
@@ -78,12 +78,8 @@ export class User {
     })
     resetPasswordExpire: string
 
-    async validatePassword(this: DocumentType<User>, candidate: string) {
-        try {
-            return await argon2.verify(this.password, candidate)
-        } catch (e: any) {
-            return false
-        }
+    async validatePassword(password: string): Promise<boolean> {
+        return await argon2.verify(this.password, password)
     }
 
     getResetPasswordToken(this: DocumentType<User>) {

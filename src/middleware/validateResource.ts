@@ -9,7 +9,7 @@ const validateResource = (schema: AnyZodObject) => (req: Request, res: Response,
             params: req.params,
         })
 
-        next()
+        return next()
     } catch (e: any) {
         res.status(400).send(e.errors)
     }

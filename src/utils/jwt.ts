@@ -11,13 +11,22 @@ export function signJwt(payload: Object, keyName: 'accessTokenPrivateKey' | 'ref
     })
 }
 
-export function verifyJwt<T>(token: string, keyName: 'accessTokenPublicKey' | 'refreshTokenPublicKey'): T | null {
+export function verifyJwt(token: string, keyName: 'accessTokenPublicKey' | 'refreshTokenPublicKey') {
     const publicKey = Buffer.from(config[keyName], 'base64').toString('ascii')
 
     try {
-        const decoded = jwt.verify(token, publicKey) as T
-        return decoded
-    } catch (e) {
-        return null
+        const decoded = jwt.verify(token, publicKey)
+
+        return {
+            decoded,
+            expired: false,
+            valid: true,
+        }
+    } catch (e: any) {
+        return {
+            decoded: null,
+            expired: true,
+            valid: false,
+        }
     }
 }

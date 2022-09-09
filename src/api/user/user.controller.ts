@@ -4,17 +4,17 @@ import { omit } from 'lodash'
 import { CreateUserInput, UpdateUserInput } from './user.schema'
 import { privateFields } from './user.model'
 
-import { getUsers, getUserById, createUser, updateUser, deleteUser } from './user.service'
+import { findUsers, findUserById, createUser, updateUser, deleteUser } from './user.service'
 
 export async function getUsersHandler(req: Request, res: Response) {
-    const users = await getUsers()
+    const users = await findUsers()
 
     res.send(users)
 }
 
 export async function getUserHandler(req: Request, res: Response) {
     const id = req.params.id
-    const user = await getUserById(id)
+    const user = await findUserById(id)
 
     res.send(user)
 }

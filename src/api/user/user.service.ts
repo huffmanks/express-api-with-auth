@@ -1,21 +1,20 @@
+import { FilterQuery } from 'mongoose'
+
 import { UserModel, SessionModel } from '../../models'
 
+import { User } from './user.model'
 import { CreateUserInput, UpdateUserInput } from './user.schema'
 
-export function getUsers() {
+export function findUsers() {
     return UserModel.find({})
 }
 
-export function getUserById(id: string) {
+export function findUserById(id: string) {
     return UserModel.findById(id)
 }
 
-export function getUserByEmail(email: string) {
-    return UserModel.findOne({ email })
-}
-
-export function getUserByResetPasswordToken(resetPasswordToken: string) {
-    return UserModel.findOne({ resetPasswordToken })
+export function findUserByQuery(query: FilterQuery<User>) {
+    return UserModel.findOne(query)
 }
 
 export function createUser(input: CreateUserInput) {
@@ -27,7 +26,7 @@ export function updateUser(id: string, input: UpdateUserInput) {
 }
 
 export async function deleteUser(id: string) {
-    const user = UserModel.findByIdAndDelete(id)
+    const user = UserModel.findByIdAndDelete(id, { new: true })
     await SessionModel.deleteMany({ user: id })
 
     return user
