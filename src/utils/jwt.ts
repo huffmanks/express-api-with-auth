@@ -2,6 +2,12 @@ import jwt from 'jsonwebtoken'
 
 import config from '../config'
 
+interface IVerify {
+    decoded: { [key: string]: any } | null
+    expired: boolean
+    valid: boolean
+}
+
 export function signJwt(payload: Object, keyName: 'accessTokenPrivateKey' | 'refreshTokenPrivateKey', options?: jwt.SignOptions | undefined) {
     const signingKey = Buffer.from(config[keyName], 'base64').toString('ascii')
 
@@ -21,12 +27,12 @@ export function verifyJwt(token: string, keyName: 'accessTokenPublicKey' | 'refr
             decoded,
             expired: false,
             valid: true,
-        }
+        } as IVerify
     } catch (e: any) {
         return {
             decoded: null,
             expired: true,
             valid: false,
-        }
+        } as IVerify
     }
 }

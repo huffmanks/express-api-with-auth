@@ -25,7 +25,7 @@ export async function signRefreshToken(userId: string) {
     return refreshToken
 }
 
-export function getSessionById(id: string) {
+export function findSessionById(id: string) {
     return SessionModel.findById(id)
 }
 
@@ -72,7 +72,7 @@ export async function reissueAccessToken({ refreshToken }: { refreshToken: strin
     const { decoded } = verifyJwt(refreshToken || '', 'refreshTokenPublicKey')
     if (!decoded) return false
 
-    const session = await getSessionById(decoded.session)
+    const session = await findSessionById(decoded.session)
     if (!session || !session.valid) return false
 
     const user = await findUserByQuery({ _id: session.user })

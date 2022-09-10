@@ -4,18 +4,16 @@ import { reissueAccessToken } from '../api/auth/auth.service'
 import { verifyJwt } from '../utils/jwt'
 
 const deserializeUser = async (req: Request, res: Response, next: NextFunction) => {
-    const accessToken = req.headers.authorization?.split(' ')[1] || req.cookies.accessToken?.split(' ')[1] || ''
+    const accessToken = req.cookies.accessToken
     if (!accessToken) return next()
 
     const { decoded, expired } = verifyJwt(accessToken, 'accessTokenPublicKey')
 
     if (decoded) {
         res.locals.user = decoded
-
         return next()
     }
-
-    const refreshToken = req.headers['x-refresh'] as string
+    const refreshToken = req.cookies.refreshToken
 
     if (refreshToken && expired) {
         const newAccessToken = await reissueAccessToken({ refreshToken })
@@ -30,7 +28,6 @@ const deserializeUser = async (req: Request, res: Response, next: NextFunction) 
 
         return next()
     }
-
     return next()
 }
 
