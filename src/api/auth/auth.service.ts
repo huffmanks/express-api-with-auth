@@ -17,8 +17,8 @@ export function signAccessToken(user: DocumentType<User>) {
     return accessToken
 }
 
-export async function signRefreshToken(userId: string) {
-    const session = await createSession(userId)
+export async function signRefreshToken(userId: string, userAgent: string) {
+    const session = await createSession(userId, userAgent)
 
     const refreshToken = signJwt({ session: session._id }, 'refreshTokenPrivateKey', { expiresIn: config.refreshTokenExpires })
 
@@ -29,8 +29,8 @@ export function findSessionById(id: string) {
     return SessionModel.findById(id)
 }
 
-export function createSession(userId: string) {
-    return SessionModel.create({ user: userId })
+export function createSession(userId: string, userAgent: string) {
+    return SessionModel.create({ user: userId, userAgent })
 }
 
 export async function forgotPassword(user: DocumentType<User>) {
@@ -83,6 +83,6 @@ export async function reissueAccessToken({ refreshToken }: { refreshToken: strin
     return accessToken
 }
 
-export function terminateSession(userId: string) {
-    return SessionModel.findOneAndUpdate({ user: userId }, { valid: false }, { new: true })
+export async function terminateSession(userId: string) {
+    return SessionModel.findOneAndUpdate({ user: userId }, { valid: false }, { new: true }).sort('-createdAt')
 }

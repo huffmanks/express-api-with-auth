@@ -37,7 +37,7 @@ export async function loginHandler(req: Request<{}, {}, LoginUserInput>, res: Re
     if (!isValid) return res.status(401).send('Invalid email or password.')
 
     const accessToken = signAccessToken(user)
-    const refreshToken = await signRefreshToken(user._id)
+    const refreshToken = await signRefreshToken(user._id, req.get('user-agent') || '')
 
     return sendToken(res, 201, accessToken, refreshToken)
 }
@@ -65,7 +65,7 @@ export async function resetPasswordHandler(req: Request, res: Response) {
     if (!updatedUser) return res.status(401).send('Reset password token has expired!')
 
     const accessToken = signAccessToken(updatedUser)
-    const refreshToken = await signRefreshToken(updatedUser._id)
+    const refreshToken = await signRefreshToken(updatedUser._id, req.get('user-agent') || '')
 
     return sendToken(res, 201, accessToken, refreshToken)
 }
@@ -74,6 +74,10 @@ export async function logoutHandler(req: Request, res: Response) {
     const userId = res.locals.user._id
 
     const session = await terminateSession(userId)
+
+    if (!session) return res.status(500)
+    session.setSessionLength()
+
     res.clearCookie('accessToken')
     res.clearCookie('refreshToken')
 
