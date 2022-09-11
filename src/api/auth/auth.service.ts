@@ -3,7 +3,7 @@ import { omit } from 'lodash'
 
 import config from '../../config'
 
-import { findUserByQuery } from '../user/user.service'
+import { findUserById, findUserByQuery } from '../user/user.service'
 import { SessionModel } from '../../models'
 import { privateFields, User } from '../user/user.model'
 
@@ -84,5 +84,17 @@ export async function reissueAccessToken({ refreshToken }: { refreshToken: strin
 }
 
 export async function terminateSession(userId: string) {
-    return SessionModel.findOneAndUpdate({ user: userId }, { valid: false }, { new: true }).sort('-createdAt')
+    const user = await findUserById(userId)
+    if (!user) return false
+
+    const session = await SessionModel.findOneAndDelete({ user: userId })
+    if (!session) return false
+
+    const { updatedAt, sessionLength } = session.getSessionLength()
+    const lastLogin = omit(session.toJSON(), ['_id', 'user', 'valid', '__v'])
+    user.lastLogin = { ...lastLogin, updatedAt, sessionLength }
+
+    user.save()
+
+    return session
 }

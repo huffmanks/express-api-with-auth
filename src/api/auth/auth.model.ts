@@ -15,13 +15,6 @@ export class Session {
     @prop({})
     userAgent: string
 
-    @prop({})
-    sessionLength?: {
-        hours: number
-        minutes: number
-        seconds: number
-    }
-
     @prop({
         default: true,
     })
@@ -29,22 +22,25 @@ export class Session {
 
     createdAt: Date
 
-    updatedAt: Date
+    getSessionLength(this: DocumentType<Session>) {
+        const updatedAt = new Date()
 
-    setSessionLength(this: DocumentType<Session>) {
-        const start = this.createdAt.getTime()
-        const end = this.updatedAt.getTime()
+        let delta = Math.ceil(Math.abs(updatedAt.getTime() - this.createdAt.getTime()) / 1000)
 
-        const seconds = Math.ceil(Math.abs(end - start) / 1000)
-        const minutes = Math.floor(seconds / 60)
-        const hours = Math.floor(minutes / 60)
-        this.sessionLength = {
+        const hours = Math.floor(delta / 3600) % 8
+        delta -= hours * 3600
+
+        const minutes = Math.floor(delta / 60) % 60
+        delta -= minutes * 60
+
+        const seconds = Math.floor(delta % 60)
+
+        const sessionLength = {
             hours,
             minutes,
             seconds,
         }
 
-        this.save()
-        return
+        return { updatedAt, sessionLength }
     }
 }

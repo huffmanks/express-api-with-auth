@@ -68,6 +68,9 @@ export class User {
     })
     avatarUrl?: string
 
+    @prop({})
+    lastLogin?: object
+
     @prop({
         default: '',
     })

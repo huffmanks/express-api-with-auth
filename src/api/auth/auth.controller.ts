@@ -75,9 +75,6 @@ export async function logoutHandler(req: Request, res: Response) {
 
     const session = await terminateSession(userId)
 
-    if (!session) return res.status(500)
-    session.setSessionLength()
-
     res.clearCookie('accessToken')
     res.clearCookie('refreshToken')
 
