@@ -1,6 +1,6 @@
 import { Router } from 'express'
 
-import { createUserSchema, resetPasswordSchema } from '../user/user.schema'
+import { createUserSchema, loginUserSchema, resetPasswordSchema } from '../user/user.schema'
 import { registerHandler, loginHandler, forgotPasswordHandler, resetPasswordHandler, logoutHandler } from './auth.controller'
 
 import deserializeUser from '../../middleware/deserializeUser'
@@ -10,7 +10,7 @@ const router = Router()
 
 router.post('/register', validateResource(createUserSchema), registerHandler)
 
-router.post('/login', loginHandler)
+router.post('/login', validateResource(loginUserSchema), loginHandler)
 
 router.post('/forgot-password', forgotPasswordHandler)
 

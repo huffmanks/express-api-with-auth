@@ -1,21 +1,22 @@
 import { Request, Response } from 'express'
 import crypto from 'crypto'
-import { omit } from 'lodash'
+import omit from 'lodash.omit'
 
-import { privateFields } from '../user/user.model'
+import { ILeanUser, privateUserFields } from '../user/user.model'
 import { CreateUserInput, LoginUserInput } from '../user/user.schema'
 
-import { signAccessToken, signRefreshToken, forgotPassword, resetPassword, terminateSession } from './auth.service'
-import { createUser, findUserByQuery } from '../user/user.service'
+import { signAccessToken, signRefreshToken, forgotPassword, resetPassword, terminateSession, findSessionById } from './auth.service'
+import { createUser, findUserById, findUserByQuery } from '../user/user.service'
 
 import { sendToken } from '../../utils/sendToken'
+import { verifyJwt } from '../../utils/jwt'
 
 export async function registerHandler(req: Request<{}, {}, CreateUserInput>, res: Response) {
     try {
         const body = req.body
 
         const user = await createUser(body)
-        const userData = omit(user.toJSON(), privateFields)
+        const userData = omit(user.toJSON(), privateUserFields)
 
         return res.status(201).send(userData)
     } catch (e: any) {
@@ -39,7 +40,9 @@ export async function loginHandler(req: Request<{}, {}, LoginUserInput>, res: Re
     const accessToken = signAccessToken(user)
     const refreshToken = await signRefreshToken(user._id, req.get('user-agent') || '')
 
-    return sendToken(res, 201, accessToken, refreshToken)
+    const userData = omit(user.toJSON(), privateUserFields) as ILeanUser
+
+    return sendToken(res, 200, userData, accessToken, refreshToken)
 }
 
 export async function forgotPasswordHandler(req: Request, res: Response) {
@@ -67,16 +70,35 @@ export async function resetPasswordHandler(req: Request, res: Response) {
     const accessToken = signAccessToken(updatedUser)
     const refreshToken = await signRefreshToken(updatedUser._id, req.get('user-agent') || '')
 
-    return sendToken(res, 201, accessToken, refreshToken)
+    const userData = omit(user.toJSON(), privateUserFields) as ILeanUser
+
+    return sendToken(res, 200, userData, accessToken, refreshToken)
+}
+
+export async function reissueAccessToken({ refreshToken }: { refreshToken: string }) {
+    const { decoded } = verifyJwt(refreshToken || '', 'refreshTokenPublicKey')
+    if (!decoded) return false
+
+    const session = await findSessionById(decoded.session)
+    if (!session || !session.valid) return false
+
+    const user = await findUserByQuery({ _id: session.user })
+    if (!user) return false
+
+    return signAccessToken(user)
 }
 
 export async function logoutHandler(req: Request, res: Response) {
     const userId = res.locals.user._id
 
-    const session = await terminateSession(userId)
-
     res.clearCookie('accessToken')
     res.clearCookie('refreshToken')
 
-    return res.status(200).send({ session })
+    const user = await findUserById(userId)
+    if (!user) return res.status(401).send('User is not logged in.')
+
+    const session = await terminateSession(user)
+    if (!session) return res.status(500).send('Logout failed.')
+
+    return res.status(200).send(session)
 }

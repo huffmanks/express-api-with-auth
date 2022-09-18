@@ -2,9 +2,22 @@ import { DocumentType, modelOptions, prop, pre } from '@typegoose/typegoose'
 import argon2 from 'argon2'
 import crypto from 'crypto'
 
-import { getCurrentTime } from '../../utils/getCurrentTime'
+import { getDate } from '../../utils/getDateTime'
 
-export const privateFields = ['password', 'resetPasswordToken', 'resetPasswordExpire', '__v']
+export const privateUserFields = ['password', 'resetPasswordToken', 'resetPasswordExpire', '__v']
+
+export interface ILeanUser {
+    _id: string
+    firstName?: string
+    lastName?: string
+    email: string
+    userName: string
+    role?: ERole
+    profileImage?: string
+    lastLogin?: object
+    createdAt: Date
+    updatedAt: Date
+}
 
 export enum ERole {
     ADMIN = 'bull',
@@ -30,15 +43,11 @@ export enum ERole {
     },
 })
 export class User {
-    @prop({
-        default: '',
-    })
-    firstName: string
+    @prop({})
+    firstName?: string
 
-    @prop({
-        default: '',
-    })
-    lastName: string
+    @prop({})
+    lastName?: string
 
     @prop({
         lowercase: true,
@@ -47,10 +56,7 @@ export class User {
     })
     email: string
 
-    @prop({
-        default: '',
-    })
-    userName: string
+    userName?: string
 
     @prop({
         required: true,
@@ -59,40 +65,53 @@ export class User {
 
     @prop({
         enum: ERole,
-        default: 'tiger',
+        default: ERole.GUEST,
     })
     role?: ERole
 
-    @prop({
-        default: '',
-    })
-    avatarUrl?: string
+    @prop({})
+    profileImage?: string
 
     @prop({})
     lastLogin?: object
 
-    @prop({
-        default: '',
-    })
-    resetPasswordToken: string
+    @prop({})
+    resetPasswordToken?: string
 
-    @prop({
-        default: '',
-    })
-    resetPasswordExpire: string
+    @prop({})
+    resetPasswordExpire?: Date
 
     async validatePassword(password: string): Promise<boolean> {
         return await argon2.verify(this.password, password)
     }
 
-    getResetPasswordToken(this: DocumentType<User>) {
+    async getResetPasswordToken(this: DocumentType<User>) {
         const resetPasswordToken = crypto.randomBytes(20).toString('hex')
 
-        const expirationTime = getCurrentTime(10)
+        const expirationTime = getDate(10)
 
         this.resetPasswordToken = crypto.createHash('sha256').update(resetPasswordToken).digest('hex')
         this.resetPasswordExpire = expirationTime
 
+        await this.save()
+
         return resetPasswordToken
+    }
+
+    async setResetPassword(this: DocumentType<User>, password: string) {
+        const currentTime = getDate()
+
+        const isExpired = this.resetPasswordExpire ? this.resetPasswordExpire < currentTime : false
+
+        this.resetPasswordToken = undefined
+        this.resetPasswordExpire = undefined
+
+        if (!isExpired) {
+            this.password = password
+        }
+
+        await this.save()
+
+        return this
     }
 }

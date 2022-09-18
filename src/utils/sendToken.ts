@@ -1,9 +1,11 @@
 import { Response } from 'express'
 
-export const sendToken = (res: Response, statusCode: number, accessToken: string, refreshToken: string) => {
+import { ILeanUser } from '../api/user/user.model'
+
+export const sendToken = (res: Response, statusCode: number, user: ILeanUser, accessToken: string, refreshToken: string) => {
     return res
-        .cookie('accessToken', accessToken, { httpOnly: true, maxAge: 5 * 60 * 1000 })
+        .cookie('accessToken', accessToken, { httpOnly: true, maxAge: 8 * 60 * 60 * 1000 })
         .cookie('refreshToken', refreshToken, { httpOnly: true, maxAge: 8 * 60 * 60 * 1000 })
         .status(statusCode)
-        .json('success')
+        .json(user)
 }

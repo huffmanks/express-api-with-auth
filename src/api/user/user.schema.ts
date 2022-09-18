@@ -66,7 +66,7 @@ export const updateUserSchema = object({
 
         role: optional(nativeEnum(ERole)),
 
-        avatarUrl: string().url().optional().or(literal('')),
+        profileImage: string().url().optional().or(literal('')),
     }).refine((data) => data?.password === data?.passwordConfirmation, {
         message: 'Passwords do not match.',
         path: ['passwordConfirmation'],

@@ -1,11 +1,11 @@
 import { Request, Response, NextFunction } from 'express'
 
-import { reissueAccessToken } from '../api/auth/auth.service'
+import { reissueAccessToken } from '../api/auth/auth.controller'
 import { verifyJwt } from '../utils/jwt'
 
 const deserializeUser = async (req: Request, res: Response, next: NextFunction) => {
     const accessToken = req.cookies.accessToken
-    if (!accessToken) return next()
+    if (!accessToken) return res.status(401).send('You are not authorized to access this route.')
 
     const { decoded, expired } = verifyJwt(accessToken, 'accessTokenPublicKey')
 
@@ -19,7 +19,7 @@ const deserializeUser = async (req: Request, res: Response, next: NextFunction) 
         const newAccessToken = await reissueAccessToken({ refreshToken })
 
         if (newAccessToken) {
-            res.cookie('accessToken', newAccessToken, { httpOnly: true, maxAge: 5 * 60 * 1000 })
+            res.cookie('accessToken', newAccessToken, { httpOnly: true, maxAge: 8 * 60 * 60 * 1000 })
         }
 
         const result = verifyJwt(newAccessToken as string, 'accessTokenPublicKey')

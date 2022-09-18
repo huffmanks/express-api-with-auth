@@ -1,5 +1,9 @@
 import { DocumentType, modelOptions, prop, Ref } from '@typegoose/typegoose'
+import omit from 'lodash.omit'
+
 import { User } from '../user/user.model'
+
+export const privateSessionFields = ['_id', 'user', 'valid', 'createdAt', 'updatedAt', '__v']
 
 @modelOptions({
     schemaOptions: {
@@ -22,10 +26,10 @@ export class Session {
 
     createdAt: Date
 
-    getSessionLength(this: DocumentType<Session>) {
-        const updatedAt = new Date()
+    async setLastLogin(this: DocumentType<Session>, user: DocumentType<User>) {
+        const endedAt = new Date()
 
-        let delta = Math.ceil(Math.abs(updatedAt.getTime() - this.createdAt.getTime()) / 1000)
+        let delta = Math.ceil(Math.abs(endedAt.getTime() - this.createdAt.getTime()) / 1000)
 
         const hours = Math.floor(delta / 3600) % 8
         delta -= hours * 3600
@@ -41,6 +45,11 @@ export class Session {
             seconds,
         }
 
-        return { updatedAt, sessionLength }
+        const lastLogin = omit(this.toJSON(), privateSessionFields)
+        user.lastLogin = { ...lastLogin, startedAt: this.createdAt, endedAt, sessionLength }
+
+        await user.save()
+
+        return
     }
 }

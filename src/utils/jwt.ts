@@ -1,11 +1,19 @@
 import jwt from 'jsonwebtoken'
+import type { JwtPayload } from 'jsonwebtoken'
 
 import config from '../config'
+import { getTimestamp } from './getDateTime'
 
 interface IVerify {
-    decoded: { [key: string]: any } | null
+    decoded: JwtPayload | null
     expired: boolean
     valid: boolean
+}
+
+const invalidToken = {
+    decoded: null,
+    expired: true,
+    valid: false,
 }
 
 export function signJwt(payload: Object, keyName: 'accessTokenPrivateKey' | 'refreshTokenPrivateKey', options?: jwt.SignOptions | undefined) {
@@ -21,7 +29,12 @@ export function verifyJwt(token: string, keyName: 'accessTokenPublicKey' | 'refr
     const publicKey = Buffer.from(config[keyName], 'base64').toString('ascii')
 
     try {
-        const decoded = jwt.verify(token, publicKey)
+        const decoded = jwt.verify(token, publicKey) as IVerify['decoded']
+        if (!decoded) return invalidToken
+
+        // @ts-ignore
+        const expired = getTimestamp() >= decoded?.exp
+        if (expired) return invalidToken
 
         return {
             decoded,
@@ -29,10 +42,6 @@ export function verifyJwt(token: string, keyName: 'accessTokenPublicKey' | 'refr
             valid: true,
         } as IVerify
     } catch (e: any) {
-        return {
-            decoded: null,
-            expired: true,
-            valid: false,
-        } as IVerify
+        return invalidToken as IVerify
     }
 }

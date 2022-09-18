@@ -27,8 +27,6 @@ export async function updateTask(id: string, input: UpdateTaskInput) {
 }
 
 export async function deleteTask(id: string) {
-    const task = TaskModel.findByIdAndDelete(id)
     await ProjectModel.findByIdAndDelete({ tasks: { task: id } })
-
-    return task
+    return TaskModel.findByIdAndDelete(id)
 }

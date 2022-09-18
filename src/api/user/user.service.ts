@@ -26,8 +26,6 @@ export function updateUser(id: string, input: UpdateUserInput) {
 }
 
 export async function deleteUser(id: string) {
-    const user = UserModel.findByIdAndDelete(id, { new: true })
-    await SessionModel.deleteMany({ user: id })
-
-    return user
+    await SessionModel.findByIdAndDelete(id)
+    return UserModel.findByIdAndDelete(id)
 }
