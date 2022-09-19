@@ -100,5 +100,5 @@ export async function logoutHandler(req: Request, res: Response) {
     const session = await terminateSession(user)
     if (!session) return res.status(500).send('Logout failed.')
 
-    return res.status(200).send(session)
+    return res.status(200).send({ userId: user._id, ...session })
 }

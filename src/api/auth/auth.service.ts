@@ -41,5 +41,5 @@ export async function terminateSession(user: DocumentType<User>) {
     await session.setLastLogin(user)
     session.delete()
 
-    return session
+    return user.lastLogin
 }
