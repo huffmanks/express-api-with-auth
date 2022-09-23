@@ -2,20 +2,6 @@ import { modelOptions, prop, Ref } from '@typegoose/typegoose'
 import { User } from '../user/user.model'
 import { Project } from '../project/project.model'
 
-export enum EImpact {
-    MASSIVE = 3,
-    HIGH = 2,
-    MEDIUM = 1,
-    LOW = 0.5,
-    MINIMAL = 0.25,
-}
-
-export enum EConfidence {
-    HIGH = 1,
-    MEDIUM = 0.8,
-    LOW = 0.5,
-}
-
 @modelOptions({
     schemaOptions: {
         timestamps: true,
@@ -27,9 +13,7 @@ export class Task {
     })
     title: String
 
-    @prop({
-        default: '',
-    })
+    @prop({})
     description: String
 
     @prop({
@@ -41,20 +25,10 @@ export class Task {
     @prop({
         ref: () => User,
     })
-    author: Ref<User>
+    creator: Ref<User>
 
     @prop({
         ref: () => User,
     })
     assignee: Ref<User>
-
-    // @prop({
-    //     enum: EImpact
-    // })
-    // impact: EImpact
-
-    // @prop({
-    //     enum: EConfidence,
-    // })
-    // confidence: EConfidence
 }
