@@ -17,6 +17,7 @@ export const createProjectSchema = object({
 export const updateProjectSchema = object({
     body: object({
         title: optional(string().min(1, 'Title is required.')),
+        description: optional(string()),
         // team: optional(string().refine((data) => documentExists(TeamModel, data), {
         //     message: 'Team does not exist.',
         // })),

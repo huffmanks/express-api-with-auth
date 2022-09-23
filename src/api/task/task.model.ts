@@ -18,7 +18,7 @@ export class Task {
 
     @prop({
         ref: () => Project,
-        required: true,
+        // required: true,
     })
     project: Ref<Project>
 
@@ -31,4 +31,9 @@ export class Task {
         ref: () => User,
     })
     assignee: Ref<User>
+
+    @prop({
+        required: true,
+    })
+    effort: number
 }

@@ -1,4 +1,5 @@
-import { modelOptions, pre, prop, Ref } from '@typegoose/typegoose'
+import { DocumentType, modelOptions, prop, Ref } from '@typegoose/typegoose'
+import { TaskModel } from '../../models'
 // import { Team } from '../team/team.model'
 import { Task } from '../task/task.model'
 import { User } from '../user/user.model'
@@ -17,9 +18,6 @@ export enum EConfidence {
     LOW = 0.5,
 }
 
-@pre<Project>('save', function () {
-    this.rice = (this.reach * this.impact * this.confidence) / this.effort
-})
 @modelOptions({
     schemaOptions: {
         timestamps: true,
@@ -70,8 +68,14 @@ export class Project {
     })
     confidence: EConfidence
 
-    @prop({
-        required: true,
-    })
-    effort: number
+    async setRice(this: DocumentType<Project>) {
+        const projectTasks = await TaskModel.find({ project: this._id })
+
+        const effort = projectTasks.map((task: DocumentType<Task>) => task.effort).reduce((prev: number, curr: number) => prev + curr)
+        this.rice = Math.round((this.reach * this.impact * this.confidence) / effort)
+
+        await this.save()
+
+        return this
+    }
 }

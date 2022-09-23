@@ -7,15 +7,20 @@ export function getProjects() {
 }
 
 export function getProjectById(id: string) {
-    return ProjectModel.findById({ userId: id })
+    return ProjectModel.findById(id)
 }
 
 export function createProject(input: CreateProjectInput) {
     return ProjectModel.create(input)
 }
 
-export function updateProject(id: string, input: UpdateProjectInput) {
-    return ProjectModel.findByIdAndUpdate({ _id: id }, input, { new: true })
+export async function updateProject(id: string, input: UpdateProjectInput) {
+    const project = await ProjectModel.findByIdAndUpdate(id, input, { new: true })
+    if (!project) return
+
+    await project.setRice()
+
+    return project
 }
 
 export async function deleteProject(id: string) {

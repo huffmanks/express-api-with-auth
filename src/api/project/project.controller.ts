@@ -31,7 +31,9 @@ export async function updateProjectHandler(req: Request<{ id: string }, {}, Upda
         if (!updatedProject) return res.status(500).send('Could not update project.')
 
         return res.status(200).send(updatedProject)
-    } catch (e: any) {}
+    } catch (e: any) {
+        res.status(500).send(e)
+    }
 }
 
 export async function deleteProjectHandler(req: Request, res: Response) {
