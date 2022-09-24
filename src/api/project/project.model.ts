@@ -1,4 +1,5 @@
 import { DocumentType, modelOptions, prop, Ref } from '@typegoose/typegoose'
+
 import { TaskModel } from '../../models'
 // import { Team } from '../team/team.model'
 import { Task } from '../task/task.model'
@@ -37,6 +38,12 @@ export class Project {
     //     required: true,
     // })
     // team: Ref<Team>
+
+    @prop({
+        ref: () => User,
+        immutable: true,
+    })
+    createdBy: Ref<User>
 
     @prop({
         ref: () => Task,

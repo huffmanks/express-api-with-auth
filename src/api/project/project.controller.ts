@@ -18,7 +18,8 @@ export async function getProjectHandler(req: Request, res: Response) {
 }
 
 export async function createProjectHandler(req: Request<{}, {}, CreateProjectInput>, res: Response) {
-    const project = await createProject(req.body)
+    const input = { ...req.body, createdBy: res.locals.user._id }
+    const project = await createProject(input)
 
     res.status(201).send(project)
 }

@@ -24,14 +24,14 @@ export class Task {
 
     @prop({
         ref: () => User,
-        required: true,
+        immutable: true,
     })
-    creator: Ref<User>
+    createdBy: Ref<User>
 
     @prop({
         ref: () => User,
     })
-    assignee: Ref<User>
+    assignedTo: Ref<User>
 
     @prop({
         required: true,

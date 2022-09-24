@@ -18,7 +18,8 @@ export async function getTaskHandler(req: Request, res: Response) {
 }
 
 export async function createTaskHandler(req: Request<{}, {}, CreateTaskInput>, res: Response) {
-    const task = await createTask(req.body)
+    const input = { ...req.body, createdBy: res.locals.user._id }
+    const task = await createTask(input)
 
     res.status(201).send(task)
 }

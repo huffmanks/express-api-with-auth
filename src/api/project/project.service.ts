@@ -10,7 +10,7 @@ export function getProjectById(id: string) {
     return ProjectModel.findById(id)
 }
 
-export function createProject(input: CreateProjectInput) {
+export async function createProject(input: CreateProjectInput) {
     return ProjectModel.create(input)
 }
 

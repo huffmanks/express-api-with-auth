@@ -12,11 +12,6 @@ export const createTaskSchema = object({
         }).refine((data) => documentExists(ProjectModel, data), {
             message: 'Project does not exist.',
         }),
-        creator: string({
-            required_error: 'Creator is required.',
-        }).refine((data) => documentExists(UserModel, data), {
-            message: 'User does not exist.',
-        }),
         effort: number({
             required_error: 'Effort is required.',
         }),
@@ -34,14 +29,7 @@ export const updateTaskSchema = object({
                     message: 'Project does not exist.',
                 })
         ),
-        creator: optional(
-            string()
-                .min(1, 'Creator is required.')
-                .refine((data) => documentExists(UserModel, data), {
-                    message: 'User does not exist.',
-                })
-        ),
-        assignee: optional(
+        assignedTo: optional(
             string().refine((data) => documentExists(UserModel, data), {
                 message: 'User does not exist.',
             })
