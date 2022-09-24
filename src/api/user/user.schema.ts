@@ -21,52 +21,16 @@ export const createUserSchema = object({
     }),
 })
 
-export const loginUserSchema = object({
-    body: object({
-        email: string({
-            required_error: 'Email is required.',
-        }).email('Email is not valid.'),
-
-        password: string({
-            required_error: 'Password is required.',
-        }),
-    }),
-})
-
-export const resetPasswordSchema = object({
-    body: object({
-        password: string({
-            required_error: 'Password is required.',
-        }).min(8, 'Password must be a minimum of 8 characters.'),
-
-        passwordConfirmation: string({
-            required_error: 'Password confirmation is required.',
-        }),
-    }).refine((data) => data.password === data.passwordConfirmation, {
-        message: 'Passwords do not match.',
-        path: ['passwordConfirmation'],
-    }),
-})
-
 export const updateUserSchema = object({
     body: object({
         firstName: optional(string()),
-
         lastName: optional(string()),
-
         email: optional(string().email('Email is not valid.').min(1, 'Email is required.')),
-
         password: optional(string().min(8, 'Password must be a minimum of 8 characters.')),
-
-        passwordConfirmation: optional(
-            string({
-                required_error: 'Password confirmation is required.',
-            })
-        ),
-
+        passwordConfirmation: optional(string().min(8, 'Password must be a minimum of 8 characters.')),
         role: optional(nativeEnum(ERole)),
-
-        profileImage: string().url().optional().or(literal('')),
+        profileImage: optional(string().url()),
+        // profileImage: string().url().optional().or(literal('')),
     }).refine((data) => data?.password === data?.passwordConfirmation, {
         message: 'Passwords do not match.',
         path: ['passwordConfirmation'],
@@ -74,5 +38,4 @@ export const updateUserSchema = object({
 })
 
 export type CreateUserInput = TypeOf<typeof createUserSchema>['body']
-export type LoginUserInput = TypeOf<typeof loginUserSchema>['body']
 export type UpdateUserInput = TypeOf<typeof updateUserSchema>['body']

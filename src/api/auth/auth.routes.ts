@@ -1,6 +1,7 @@
 import { Router } from 'express'
 
-import { createUserSchema, loginUserSchema, resetPasswordSchema } from '../user/user.schema'
+import { loginUserSchema, resetPasswordSchema } from './auth.schema'
+import { createUserSchema } from '../user/user.schema'
 import { registerHandler, loginHandler, forgotPasswordHandler, resetPasswordHandler, logoutHandler } from './auth.controller'
 
 import deserializeUser from '../../middleware/deserializeUser'

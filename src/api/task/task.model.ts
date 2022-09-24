@@ -18,12 +18,13 @@ export class Task {
 
     @prop({
         ref: () => Project,
-        // required: true,
+        required: true,
     })
     project: Ref<Project>
 
     @prop({
         ref: () => User,
+        required: true,
     })
     creator: Ref<User>
 

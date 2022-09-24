@@ -3,7 +3,8 @@ import crypto from 'crypto'
 import omit from 'lodash.omit'
 
 import { ILeanUser, privateUserFields } from '../user/user.model'
-import { CreateUserInput, LoginUserInput } from '../user/user.schema'
+import { LoginUserInput } from './auth.schema'
+import { CreateUserInput } from '../user/user.schema'
 
 import { signAccessToken, signRefreshToken, forgotPassword, resetPassword, terminateSession, findSessionById } from './auth.service'
 import { createUser, findUserById, findUserByQuery } from '../user/user.service'
