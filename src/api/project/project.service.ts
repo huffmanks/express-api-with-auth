@@ -18,7 +18,7 @@ export async function updateProject(id: string, input: UpdateProjectInput) {
     const project = await ProjectModel.findByIdAndUpdate(id, input, { new: true })
     if (!project) return
 
-    await project.setRice()
+    await project.setProjectStats()
 
     return project
 }

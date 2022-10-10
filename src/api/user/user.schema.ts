@@ -1,4 +1,4 @@
-import { literal, nativeEnum, object, optional, string, TypeOf } from 'zod'
+import { nativeEnum, object, optional, string, TypeOf } from 'zod'
 
 import { ERole } from './user.model'
 
@@ -30,7 +30,6 @@ export const updateUserSchema = object({
         passwordConfirmation: optional(string().min(8, 'Password must be a minimum of 8 characters.')),
         role: optional(nativeEnum(ERole)),
         profileImage: optional(string().url()),
-        // profileImage: string().url().optional().or(literal('')),
     }).refine((data) => data?.password === data?.passwordConfirmation, {
         message: 'Passwords do not match.',
         path: ['passwordConfirmation'],

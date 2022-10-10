@@ -16,7 +16,7 @@ export async function createTask(input: CreateTaskInput) {
     const project = await ProjectModel.findByIdAndUpdate(input.project, { $addToSet: { tasks: task._id } }, { new: true })
 
     if (!project) return
-    await project.setRice()
+    await project.setProjectStats()
 
     return task
 }
