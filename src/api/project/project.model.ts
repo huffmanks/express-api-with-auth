@@ -114,18 +114,19 @@ export class Project {
     async setProjectStats(this: DocumentType<Project>) {
         const projectTasks = await TaskModel.find({ project: this._id })
 
-        const completedTasks = projectTasks.filter((task: DocumentType<Task>) => task.stage === EStage.COMPLETED)
-        this.completedTasks = completedTasks.length
-        this.progress = completedTasks.length / projectTasks.length
+        if (projectTasks.length > 0) {
+            const completedTasks = projectTasks.filter((task: DocumentType<Task>) => task.stage === EStage.COMPLETED)
+            this.completedTasks = completedTasks.length
+            this.progress = completedTasks.length / projectTasks.length
 
-        const effort = projectTasks.map((task: DocumentType<Task>) => task.effort).reduce((prev: number, curr: number) => prev + curr)
-        this.rice = Math.round((this.reach * this.impact * this.confidence) / effort)
+            const effort = projectTasks.map((task: DocumentType<Task>) => task.effort).reduce((prev: number, curr: number) => prev + curr)
+            this.rice = Math.round((this.reach * this.impact * this.confidence) / effort)
 
-        const willMeetDeadline = this.neededBy > new Date(Date.now() + effort * 30 * 86400000)
-        this.willMeetDeadline = willMeetDeadline
+            const willMeetDeadline = this.neededBy > new Date(Date.now() + effort * 30 * 86400000)
+            this.willMeetDeadline = willMeetDeadline
 
-        await this.save()
-
+            await this.save()
+        }
         return this
     }
 }

@@ -1,4 +1,4 @@
-import { array, date, nativeEnum, number, object, optional, string, TypeOf } from 'zod'
+import { array, date, nativeEnum, number, object, optional, preprocess, string, TypeOf } from 'zod'
 
 import { documentExists } from '../../utils/documentExists'
 
@@ -25,9 +25,15 @@ export const createProjectSchema = object({
                 message: 'One or more clients do not exist.',
             })
         ),
-        neededBy: date({
-            required_error: 'A needed by date is required.',
-        }),
+        neededBy: preprocess(
+            (a) =>
+                new Date(
+                    string({
+                        required_error: 'A needed by date is required.',
+                    }).parse(a)
+                ),
+            date()
+        ).transform((a) => new Date(a)),
         stage: optional(nativeEnum(EStage)),
         reach: number({
             required_error: 'Reach is required.',
@@ -60,7 +66,7 @@ export const updateProjectSchema = object({
                 message: 'One or more clients do not exist.',
             })
         ),
-        neededBy: optional(date().min(new Date(), 'A needed by date is required.')),
+        neededBy: optional(preprocess((a) => new Date(string().parse(a)), date())),
         stage: optional(nativeEnum(EStage)),
         reach: optional(number().min(1, 'Reach is required.')),
         impact: optional(number().min(1, 'Impact is required.')),

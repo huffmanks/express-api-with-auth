@@ -1,4 +1,4 @@
-import { Request, Response } from 'express'
+import { NextFunction, Request, Response } from 'express'
 import crypto from 'crypto'
 import omit from 'lodash.omit'
 
@@ -12,68 +12,79 @@ import { createUser, findUserById, findUserByQuery } from '../user/user.service'
 import { sendToken } from '../../utils/sendToken'
 import { verifyJwt } from '../../utils/jwt'
 
-export async function registerHandler(req: Request<{}, {}, CreateUserInput>, res: Response) {
+export async function registerHandler(req: Request<{}, {}, CreateUserInput>, res: Response, next: NextFunction) {
     try {
         const body = req.body
-
         const user = await createUser(body)
         const userData = omit(user.toJSON(), privateUserFields)
 
-        return res.status(201).send(userData)
-    } catch (e: any) {
-        if ((e.code = 11000)) {
+        res.status(201).send(userData)
+    } catch (err: any) {
+        if ((err.code = 11000)) {
             return res.status(409).send('User already exists')
         }
 
-        return res.status(500).send(e)
+        next(err)
     }
 }
 
-export async function loginHandler(req: Request<{}, {}, LoginUserInput>, res: Response) {
-    const { email, password } = req.body
+export async function loginHandler(req: Request<{}, {}, LoginUserInput>, res: Response, next: NextFunction) {
+    try {
+        const { email, password } = req.body
 
-    const user = await findUserByQuery({ email })
-    if (!user) return res.status(401).send('Invalid email or password.')
+        const user = await findUserByQuery({ email })
+        if (!user) return res.status(401).send('Invalid email or password.')
 
-    const isValid = await user.validatePassword(password)
-    if (!isValid) return res.status(401).send('Invalid email or password.')
+        const isValid = await user.validatePassword(password)
+        if (!isValid) return res.status(401).send('Invalid email or password.')
 
-    const accessToken = signAccessToken(user)
-    const refreshToken = await signRefreshToken(user._id, req.get('user-agent') || '')
+        const accessToken = signAccessToken(user)
+        const refreshToken = await signRefreshToken(user._id, req.get('user-agent') || '')
 
-    const userData = omit(user.toJSON(), privateUserFields) as ILeanUser
+        const userData = omit(user.toJSON(), privateUserFields) as ILeanUser
 
-    return sendToken(res, 200, userData, accessToken, refreshToken)
+        return sendToken(res, 200, userData, accessToken, refreshToken)
+    } catch (err) {
+        next(err)
+    }
 }
 
-export async function forgotPasswordHandler(req: Request, res: Response) {
-    const { email } = req.body
-    if (!email) return res.status(400).send('Please provide an email.')
+export async function forgotPasswordHandler(req: Request, res: Response, next: NextFunction) {
+    try {
+        const { email } = req.body
+        if (!email) return res.status(400).send('Please provide an email.')
 
-    const user = await findUserByQuery({ email })
-    if (!user) return res.status(401).send('Invalid email.')
+        const user = await findUserByQuery({ email })
+        if (!user) return res.status(401).send('Invalid email.')
 
-    const resetPasswordToken = await forgotPassword(user)
-    if (!resetPasswordToken) return res.status(500).send('Email could not be sent.')
+        const resetPasswordToken = await forgotPassword(user)
+        if (!resetPasswordToken) return res.status(500).send('Email could not be sent.')
 
-    res.status(200).send({ resetPasswordToken })
+        res.status(200).send({ resetPasswordToken })
+    } catch (err) {
+        next(err)
+    }
 }
 
-export async function resetPasswordHandler(req: Request, res: Response) {
-    const resetPasswordToken = crypto.createHash('sha256').update(req.params.resetPasswordToken).digest('hex')
+export async function resetPasswordHandler(req: Request, res: Response, next: NextFunction) {
+    try {
+        const resetPasswordToken = crypto.createHash('sha256').update(req.params.resetPasswordToken).digest('hex')
 
-    const user = await findUserByQuery({ resetPasswordToken })
-    if (!user) return res.status(500).send('Password reset failed.')
+        const user = await findUserByQuery({ resetPasswordToken })
+        if (!user) return res.status(500).send('Password reset failed.')
 
-    const updatedUser = await resetPassword(user, req.body.password)
-    if (!updatedUser) return res.status(401).send('Reset password token has expired!')
+        const updatedUser = await resetPassword(user, req.body.password)
+        if (!updatedUser) return res.status(401).send('Reset password token has expired!')
 
-    const accessToken = signAccessToken(updatedUser)
-    const refreshToken = await signRefreshToken(updatedUser._id, req.get('user-agent') || '')
+        const accessToken = signAccessToken(updatedUser)
+        const refreshToken = await signRefreshToken(updatedUser._id, req.get('user-agent') || '')
 
-    const userData = omit(user.toJSON(), privateUserFields) as ILeanUser
+        const userData = omit(user.toJSON(), privateUserFields) as ILeanUser
 
-    return sendToken(res, 200, userData, accessToken, refreshToken)
+        return sendToken(res, 200, userData, accessToken, refreshToken)
+    } catch (err) {
+        next(err)
+    }
 }
 
 export async function reissueAccessToken({ refreshToken }: { refreshToken: string }) {
@@ -89,17 +100,20 @@ export async function reissueAccessToken({ refreshToken }: { refreshToken: strin
     return signAccessToken(user)
 }
 
-export async function logoutHandler(req: Request, res: Response) {
-    const userId = res.locals.user._id
+export async function logoutHandler(req: Request, res: Response, next: NextFunction) {
+    try {
+        const userId = res.locals.user._id
 
-    res.clearCookie('accessToken')
-    res.clearCookie('refreshToken')
+        res.clearCookie('accessToken')
+        res.clearCookie('refreshToken')
 
-    const user = await findUserById(userId)
-    if (!user) return res.status(401).send('User is not logged in.')
+        const user = await findUserById(userId)
+        if (!user) return res.status(401).send('User is not logged in.')
 
-    const session = await terminateSession(user)
-    if (!session) return res.status(500).send('Logout failed.')
+        const session = await terminateSession(user)
 
-    return res.status(200).send({ userId: user._id, ...session })
+        res.status(200).send({ userId: user._id, ...session })
+    } catch (err) {
+        next(err)
+    }
 }
